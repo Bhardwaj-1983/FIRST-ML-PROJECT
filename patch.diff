@@ -1,0 +1,235 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..315767314f9fa7fcc1ac9c5f346fe8501b25fda2
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,4 @@
++*.pyc
++__pycache__/
++.ipynb_checkpoints/
++MODEL 1.py
+diff --git a/app.py b/app.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..e0da03ff2c5d78011fafcf211a9b3f1629ec49ae
+--- /dev/null
++++ b/app.py
+@@ -0,0 +1,76 @@
++import streamlit as st
++import pandas as pd
++import joblib
++
++# Load trained pipeline
++model = joblib.load('model.joblib')
++
++st.title('Income Prediction')
++
++# Define input widgets
++age = st.number_input('Age', min_value=0, max_value=100, value=30)
++workclass = st.selectbox('Workclass', [
++    'Private', 'Self-emp-not-inc', 'Self-emp-inc', 'Federal-gov', 'Local-gov',
++    'State-gov', 'Without-pay', 'Never-worked'
++])
++fnlwgt = st.number_input('fnlwgt', min_value=0, value=100000)
++education = st.selectbox('Education', [
++    'Bachelors', 'Some-college', '11th', 'HS-grad', 'Prof-school', 'Assoc-acdm',
++    'Assoc-voc', '9th', '7th-8th', '12th', 'Masters', '1st-4th', '10th',
++    'Doctorate', '5th-6th', 'Preschool'
++])
++education_num = st.number_input('Education-num', min_value=0, value=10)
++marital_status = st.selectbox('Marital Status', [
++    'Married-civ-spouse', 'Divorced', 'Never-married', 'Separated', 'Widowed',
++    'Married-spouse-absent'
++])
++occupation = st.selectbox('Occupation', [
++    'Tech-support', 'Craft-repair', 'Other-service', 'Sales', 'Exec-managerial',
++    'Prof-specialty', 'Handlers-cleaners', 'Machine-op-inspct', 'Adm-clerical',
++    'Farming-fishing', 'Transport-moving', 'Priv-house-serv', 'Protective-serv',
++    'Armed-Forces'
++])
++relationship = st.selectbox('Relationship', [
++    'Wife', 'Own-child', 'Husband', 'Not-in-family', 'Other-relative', 'Unmarried'
++])
++race = st.selectbox('Race', [
++    'White', 'Asian-Pac-Islander', 'Amer-Indian-Eskimo', 'Other', 'Black'
++])
++sex = st.selectbox('Sex', ['Female', 'Male'])
++capital_gain = st.number_input('Capital Gain', value=0)
++capital_loss = st.number_input('Capital Loss', value=0)
++hours_per_week = st.number_input('Hours per Week', min_value=1, max_value=100, value=40)
++native_country = st.selectbox('Native Country', [
++    'United-States', 'Cambodia', 'England', 'Puerto-Rico', 'Canada', 'Germany',
++    'Outlying-US(Guam-USVI-etc)', 'India', 'Japan', 'Greece', 'South', 'China',
++    'Cuba', 'Iran', 'Honduras', 'Philippines', 'Italy', 'Poland', 'Jamaica',
++    'Vietnam', 'Mexico', 'Portugal', 'Ireland', 'France', 'Dominican-Republic',
++    'Laos', 'Ecuador', 'Taiwan', 'Haiti', 'Columbia', 'Hungary', 'Guatemala',
++    'Nicaragua', 'Scotland', 'Thailand', 'Yugoslavia', 'El-Salvador', 'Trinadad&Tobago',
++    'Peru', 'Hong', 'Holand-Netherlands'
++])
++
++# Make prediction
++input_df = pd.DataFrame({
++    'age': [age],
++    'workclass': [workclass],
++    'fnlwgt': [fnlwgt],
++    'education': [education],
++    'education-num': [education_num],
++    'marital-status': [marital_status],
++    'occupation': [occupation],
++    'relationship': [relationship],
++    'race': [race],
++    'sex': [sex],
++    'capital-gain': [capital_gain],
++    'capital-loss': [capital_loss],
++    'hours-per-week': [hours_per_week],
++    'native-country': [native_country]
++})
++
++if st.button('Predict'):
++    pred = model.predict(input_df)[0]
++    if pred == '>50K':
++        st.success('Predicted Income: >50K')
++    else:
++        st.success('Predicted Income: <=50K')
+diff --git a/model.joblib b/model.joblib
+new file mode 100644
+index 0000000000000000000000000000000000000000..a7540389d25c45de32b7f23e0cb0149feb65568d
+GIT binary patch
+literal 7377
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/requirements.txt b/requirements.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5c2c800f0638c62059d8b468eb78da456308b19a
+--- /dev/null
++++ b/requirements.txt
+@@ -0,0 +1,5 @@
++scikit-learn
++pandas
++numpy
++streamlit
++joblib
+diff --git a/train_model.py b/train_model.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..16a81462b53d709014b2f1483f8febf61450b8be
+--- /dev/null
++++ b/train_model.py
+@@ -0,0 +1,42 @@
++from sklearn.datasets import fetch_openml
++from sklearn.model_selection import train_test_split
++from sklearn.preprocessing import OneHotEncoder, StandardScaler
++from sklearn.compose import ColumnTransformer
++from sklearn.pipeline import Pipeline
++from sklearn.linear_model import LogisticRegression
++from sklearn.metrics import accuracy_score
++import pandas as pd
++import joblib
++
++# Load dataset
++adult = fetch_openml('adult', version=2, as_frame=True)
++data = adult.data
++labels = adult.target
++
++# Identify categorical and numerical columns
++categorical_cols = data.select_dtypes(include='category').columns.tolist() or data.select_dtypes(include='object').columns.tolist()
++numerical_cols = [c for c in data.columns if c not in categorical_cols]
++
++# Preprocessing pipeline
++preprocessor = ColumnTransformer([
++    ('num', StandardScaler(), numerical_cols),
++    ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_cols)
++])
++
++clf = Pipeline([
++    ('preprocess', preprocessor),
++    ('model', LogisticRegression(max_iter=1000))
++])
++
++# Train/test split
++X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42, stratify=labels)
++
++# Fit model
++clf.fit(X_train, y_train)
++
++# Evaluate
++pred = clf.predict(X_test)
++print('Accuracy:', accuracy_score(y_test, pred))
++
++# Save pipeline
++joblib.dump(clf, 'model.joblib')
+ 
+EOF
+)
